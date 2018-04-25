@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="ipsk_utils1">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/dist/signed/ipsk_utils.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

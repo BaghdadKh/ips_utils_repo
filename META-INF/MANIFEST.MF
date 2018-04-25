@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Permissions: all-permissions
+Extension-Name: ipsk.util
+Specification-Title: IPS Java Utils
+Specification-Version: 2.2.0
+Specification-Vendor: Institute of Phonetics and Speech Processing
+Implementation-Title: IPS Java Utils
+Implementation-Vendor: Institute of Phonetics and Speech Processing
+Implementation-Version: 2.2.0

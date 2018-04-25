@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="ipsk_utils2">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/dist/sandbox/ipsk_utils.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

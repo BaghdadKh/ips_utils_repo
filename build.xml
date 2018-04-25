@@ -1,0 +1,294 @@
+<!--    IPS Java Utils
+// 	  (c) Copyright 2009-2011
+// 	  Institute of Phonetics and Speech Processing,
+//    Ludwig-Maximilians-University, Munich, Germany
+//
+//
+//    This file is part of IPS Java Utils
+//
+//
+//    IPS Java Utils is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU Lesser General Public License as published by
+//    the Free Software Foundation, version 3 of the License.
+//
+//    IPS Java Utils is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details.
+//
+//    You should have received a copy of the GNU General Public License
+//    along with IPS Java Utils.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+<project default="dist" name="Java Utils" xmlns:ivy="antlib:org.apache.ivy.ant">
+
+	<property file="version.properties" />
+	<!-- First read local properties file -->
+	<property file="ant.build.properties" />
+	<!-- Next user specific file -->
+	<property file="${user.home}/.ant-global.properties" />
+	<!-- Next environment variables -->
+	<property environment="env" />
+	
+	
+	<property name="projectname"  value="IPS Java Utils"/>
+	<property name="classVersion" value="1.6"/>
+	<property name="projectshortname"  value="ips_javautils"/>
+	<property name="javaUtilsJarFilenamePrefix" value="ipsk_utils"/>
+	<property name="javaUtilsJarFilename" value="${javaUtilsJarFilenamePrefix}.jar"/>
+	<!--<property name="jpaJar" value="resources/lib/jpa/persistence-2_0-final-jar_and_schema/javax.persistence_2.0.0.jar" />-->
+	<property name="javaUtilsJar" value="dist/${javaUtilsJarFilename}"/>
+	<property name="javaUtilsSandboxJar" value="dist/sandbox/${javaUtilsJarFilename}"/>
+	<property name="javaUtilsSignedJar" value="dist/signed/${javaUtilsJarFilename}"/>
+	<property name="javaUtilsSandboxSignedJar" value="dist/sandbox/signed/${javaUtilsJarFilename}"/>
+	<property name="templates" value="resources/templates"/>
+	<property name="srcDir" value="src"/>
+	<property name="buildDir" value="build"/>
+	<property name="packDir" value="packages"/>
+	<property name="javadocDir" value="${install.web.javadoc.path}/${projectshortname}"/>
+	<!-- a temp dir without blanks in the path is required, otherwiese RPM does not work -->
+	<!-- <property name="rpmPackDir" value="${java.io.tmpdir}/packages/rpm"/> -->
+	<tempfile property="rpmPackDir" destDir="${java.io.tmpdir}" prefix="ips_rpm_packdir_"/>
+	
+	<property name="debug" value="off"/>
+	
+	<path id="buildClasspath">
+		<pathelement location="${build}"/>
+		<fileset dir="lib" includes="*.jar"/> 
+	</path>
+
+	<target name="retrieve">
+				<ivy:retrieve type="jar" pattern="lib/[artifact].[ext]"/>
+	</target>
+	
+	<target name="dist" depends="jar_sandbox,jar,ivyfile" />
+
+	<target name="test.source.package">
+		<zip destfile="${test.install.web.src.dir}/ips_javautils-${version}-src.zip" basedir="."/>
+	</target>
+
+	<target name="source.package">
+		<zip destfile="${install.web.src.dir}/ips_javautils-${version}-src.zip" basedir="."/>
+	</target>
+
+	<target name="tar" depends="jar">
+			<mkdir dir="packages/tar"/>
+		
+		<mkdir dir="packages/tar_build/ips_javautils-${version}/lib"/>
+		<copy tofile="packages/tar_build/ips_javautils-${version}/lib/ips_javautils-${version}.jar" file="dist/ipsk_utils.jar"/>
+		<tar basedir="packages/tar_build" compression="gzip" destfile="packages/tar/ips_javautils-${version}.tar.gz"/>
+	</target>
+
+	<!--
+	<target name="rpm" depends="tar">
+	-->
+		<!-- Create RPM spec file from template: -->
+	<!--
+		<concat destfile="resources/rpm/SPECS/ips_javautils-${version}.spec">
+		                        <fileset file="${templates}/ips_javautils-template.spec"/>
+		                        <filterchain>
+		                                <replacetokens>
+		                                        <token key="version" value="${version}" />
+		                                        
+		                                </replacetokens>
+		                        </filterchain>
+		                </concat>
+
+		<mkdir dir="${rpmPackDir}/SPECS"/>
+		<mkdir dir="${rpmPackDir}/BUILD"/>
+		<mkdir dir="${rpmPackDir}/SOURCES"/>
+		<mkdir dir="${rpmPackDir}/RPMS"/>
+		<mkdir dir="${rpmPackDir}/SRPMS"/>
+		<copy todir="${rpmPackDir}/SOURCES" file="packages/tar/ips_javautils-${version}.tar.gz"/>
+		<copy todir="${rpmPackDir}/SPECS" file="resources/rpm/SPECS/ips_javautils-${version}.spec"/>
+	-->
+		<!--<echo message="RPM task cannot handle blanks in path! Sorry."/> -->
+		<!--<rpm topdir="${rpmPackDir}" specfile="ips_javautils-${version}.spec"/>-->
+		<!--
+		<mkdir dir="resources/rpm/RPMS"/>
+		<copy todir="resources/rpm/RPMS">
+			<fileset dir="${rpmPackDir}/RPMS"/>
+			</copy>
+		-->
+	<!--
+		<mkdir dir="dist/rpm" />
+		<copy todir="dist/rpm/">
+			<fileset dir="${rpmPackDir}/RPMS" />
+		</copy>
+		<delete dir="${rpmPackDir}" />
+		</target>
+	-->
+	<target name ="jar" depends="compile">
+		<mkdir dir="dist"/>
+		<copy todir="${buildDir}/ipsk">
+			<fileset dir="${srcDir}/ipsk">
+				<exclude name="**/*.java"/>
+			</fileset>
+		</copy>
+		<!-- copy META-INF files -->
+		<mkdir dir="${buildDir}/META-INF" />
+		<copy todir="${buildDir}/META-INF">
+			<fileset file="LICENSE" />
+			<fileset file="NOTICE" />
+			<fileset file="COPYING" />
+			<fileset file="COPYING.LESSER" />
+		</copy>
+		<concat destfile="META-INF/MANIFEST.MF">
+			<fileset file="${templates}/MANIFEST.MF" />
+			<filterchain>
+				<replacetokens>
+					<token key="permissions" value="all-permissions"/>
+					<token key="version.specification" value="${version.specification}" />
+					<token key="version" value="${version}" />
+		
+				</replacetokens>
+			</filterchain>
+		</concat>
+		<!-- Put everything in ${buildDir} into jar file -->
+		<jar jarfile="${javaUtilsJar}" basedir="${buildDir}" manifest="META-INF/MANIFEST.MF"/>
+	</target>
+	
+	<target name ="ivyfile">
+			<mkdir dir="dist"/>
+			<copy todir="dist" file="ivy.xml" overwrite="true"/>
+		</target>
+	<!--
+	<target name ="jar_sandbox" depends="compile">
+			<mkdir dir="dist/sandbox"/>
+			<copy todir="${buildDir}/ipsk">
+				<fileset dir="${srcDir}/ipsk">
+					<exclude name="**/*.java"/>
+				</fileset>
+			</copy>
+			-->
+			<!-- copy META-INF files -->
+	<!--
+			<mkdir dir="${buildDir}/META-INF" />
+			<copy todir="${buildDir}/META-INF">
+					<fileset file="COPYING.LESSER" />
+			</copy>
+			<concat destfile="META-INF/MANIFEST.MF">
+				<fileset file="${templates}/MANIFEST.MF" />
+				<filterchain>
+					<replacetokens>
+						<token key="permissions" value="sandbox"/>
+						<token key="version.specification" value="${version.specification}" />
+						<token key="version" value="${version}" />
+			
+					</replacetokens>
+				</filterchain>
+			</concat>-->
+			<!-- Put everything in ${buildDir} into jar file -->
+			<!--<jar jarfile="${javaUtilsSandboxJar}" basedir="${buildDir}" manifest="META-INF/MANIFEST.MF"/>
+	</target>
+-->
+	<target name ="build.info">
+		<echo message="Project Base Dir = ${basedir}"/>
+		<echo message="Keystore: =${sign.keystore}"/>
+		<echo message="Keystore Alias: = ${sign.alias}"/>
+		<echo message="Install web path: = ${install.web.lib.path}"/>
+		<echo message="Base dir: ${basedir}"/>
+	</target>
+
+	<target name="compile">
+		<mkdir dir="${buildDir}"/>
+		<!-- 
+		Javac produces this warning:
+		[javac] warning: [options] bootstrap class path not set in conjunction with -source 1.6
+		See: http://stackoverflow.com/questions/14123550/eclipse-warning-options-bootstrap-class-path-not-set-in-conjunction-with-so
+		javac wants to compile against the rt.jar of the specified JDK version and tehrefore expects the path to this rt.jar 
+		in the bootclasspath
+		Version 1.6 compatibility will be soon droped, so we ignore the warning for now
+		-->
+		<javac optimize="true" source="${classVersion}" target="${classVersion}" srcdir="${srcDir}" destdir="${buildDir}" classpath="${buildDir}:${jpaJar}"/>
+		<copy todir="${buildDir}/ipsk">
+			<fileset dir="${srcDir}/ipsk">
+				<exclude name="**/*.java"/>
+			</fileset>
+		</copy>
+		
+	</target>
+
+	<target name="deps">
+		<!-- no dependencies -->
+		</target>
+	
+	
+	<target name="all" depends="deps,dist"/>
+	<!--
+	<target name="publish" depends="dist">
+		
+		<ivy:resolve/>
+		<ivy:retrieve/>
+		<echo message="${ivy.revision}"/>
+	<ivy:publish overwrite="true" resolver="bas-public-publish"  organisation="phonetik.uni-muenchen.de" module="ipsk_utils">
+	   <artifacts pattern="dist/[artifact].[ext]" />
+	   
+	</ivy:publish>
+	</target>
+
+	<target name="publish.local" depends="dist">
+			
+			<ivy:resolve/>
+			<ivy:retrieve/>
+			<echo message="${ivy.revision}"/>
+		<ivy:publish resolver="local" organisation="phonetik.uni-muenchen.de" module="ipsk_utils">
+		   <artifacts pattern="dist/[artifact].[ext]" />
+		   
+		</ivy:publish>
+		</target>
+	-->
+	<target name="clean">
+		<delete includeEmptyDirs="true" failonerror="false">
+			<fileset dir="${buildDir}" />
+			<fileset dir="packages/tar_build"/>
+			<fileset dir="dist" />
+		</delete>
+	</target>
+
+	<!-- Get password for keystore if not alredy set -->
+	<!-- Note: Does not work on the Eclipse console !! (call target sign from UNIX/Win shell) -->
+	<!--
+	<target name="sign.keystore_password" unless="sign.storepass">
+		<echo message="Note: Password input does not work inside Eclipse IDE" />
+		<echo message="Note: Call from  command line instead" />
+		<input message="Enter keystore password:" addproperty="sign.storepass">
+			<handler classname="org.apache.tools.ant.input.SecureInputHandler" />
+		</input>
+	</target>
+
+	<target name="sign" depends="sign.keystore_password">
+		<mkdir dir="dist/signed"/>
+		<signjar signedjar="${javaUtilsSignedJar}" jar="${javaUtilsJar}" alias="${sign.alias}" keystore="${sign.keystore}" storepass="${sign.storepass}" tsaurl="${tsa.url}"/>
+		<mkdir dir="dist/sandbox/signed"/>
+		<signjar signedjar="${javaUtilsSandboxSignedJar}" jar="${javaUtilsSandboxJar}" alias="${sign.alias}" keystore="${sign.keystore}" storepass="${sign.storepass}"  tsaurl="${tsa.url}"/>
+	</target>
+	
+	<target name="clean_signed">
+				<delete dir="dist/signed/"/>
+				<delete dir="dist/sandbox/signed"/>
+	</target>
+	<target name="sign_force" depends="clean_signed,sign"/>
+	-->
+	<!--
+	<target name="javadoc" >
+		<delete dir="${javadocDir}"/>
+		<mkdir dir="${javadocDir}"/>
+		-->
+		<!--<javadoc classpath="${buildClasspath}" sourcepath="src" destdir="doc/javadoc"/> -->
+	<!--
+		<javadoc classpathref="buildClasspath" sourcepath="src" overview="doc/api/overview.html" destdir="${javadocDir}" link="http://download.oracle.com/javase/6/docs/api/" />
+	</target>
+	
+	<target name="install.web">
+		<copy file="${javaUtilsSignedJar}" todir="${install.web.lib.path}"/>
+		<copy file="${javaUtilsJar}" todir="${install.web.lib.path}/unsigned"/>
+	</target>
+	
+	<target name="test.install.web">
+		<copy file="${javaUtilsSignedJar}" todir="${test.install.web.lib.path}"/>
+		<copy file="${javaUtilsJar}" todir="${test.install.web.lib.path}/unsigned"/>
+		<copy file="${javaUtilsJar}" tofile="${test.install.web.lib.path}/unsigned/${javaUtilsJarFilenamePrefix}-${version}.jar"/>
+	</target>
+-->
+</project>

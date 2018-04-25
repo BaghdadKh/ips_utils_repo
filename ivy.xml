@@ -1,0 +1,14 @@
+<ivy-module version="2.0">
+    <info organisation="de.uni-muenchen.phonetik" module="ipsk_utils"  revision="2.1.1" status="integration"/>
+    <publications>
+        <artifact name="ipsk_utils" type="jar"/>
+    </publications>
+    
+    <dependencies>
+
+        <dependency org="org.apache.commons" name="commons-math3" rev="3.2"/>
+        <dependency org="junit" name="junit" rev="4.8.1"/>
+      
+        
+    </dependencies>
+</ivy-module>

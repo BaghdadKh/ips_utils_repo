@@ -1,0 +1,16 @@
+JU-00001 2017-01-11 closed
+"Canceling of upload at end of Speechrecorder recording session causes sometimes an error"
+
+Jan 10, 2017 9:20:31 PM ipsk.net.http.SplittingHttpUploadCache uploadPart
+SCHWERWIEGEND: Cannot upload !: sleep interrupted
+Jan 10, 2017 9:20:31 PM ipsk.net.http.SplittingHttpUploadCache upload
+SCHWERWIEGEND: Cannot upload part of upload: sleep interrupted
+Jan 10, 2017 9:20:31 PM ipsk.net.http.SplittingHttpUploadCache run
+WARNUNG: Exception during upload: sleep interrupted
+Jan 10, 2017 9:20:31 PM ipsk.net.http.SplittingHttpUploadCache run
+WARNUNG: Upload failed: ipsk.apps.speechrecorder.storage.UploadAudioFile: URL: https://webapptest.phonetik.uni-muenchen.de:443/wikispeech/storage/RECS?itemcode=007&session=2365&extension=wv&script=ALC_na&line=01&overwrite=false, Length: 3300154, State: 1
+Jan 10, 2017 9:20:31 PM ipsk.net.http.SplittingHttpUploadCache run
+INFORMATION: Upload cache pauses for 4000 ms.
+
+The InterruptedException of Thread.sleep(2) call in method uploadPart() is not catched an therefore propagated as IOException, but upload canceling interrupts the upload thread intentionally and is therefore not an error.
+
